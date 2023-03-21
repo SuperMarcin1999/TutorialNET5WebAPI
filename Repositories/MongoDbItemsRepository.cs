@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using TutorialNET5WebAPI.Models;
@@ -12,6 +13,7 @@ namespace TutorialNET5WebAPI.Repositories
         private const string databaseName = "my_catalog";
         private const string collectionName = "my_items";
         private readonly IMongoCollection<Item> itemsCollection;
+        private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
 
         public MongoDbItemsRepository(IMongoClient client)
         {
@@ -19,29 +21,32 @@ namespace TutorialNET5WebAPI.Repositories
             itemsCollection = db.GetCollection<Item>(collectionName);
         }
 
-        public Item GetItem(Guid id)
+        public async Task<Item> GetItemAsync(Guid id)
         {
-            return null;
+            var filter = filterBuilder.Eq(i => i.Id, id);
+            return await itemsCollection.FindAsync(filter).Result.SingleOrDefaultAsync();
         }
 
-        public IEnumerable<Item> GetItems()
+        public async Task<IEnumerable<Item>> GetItemsAsync()
         {
-            return itemsCollection.Find(new BsonDocument()).ToList();
+            //return await itemsCollection.FindAsync(new BsonDocument()).Result.ToList();
         }
 
-        public void AddItem(Item item)
+        public Task AddItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            itemsCollection.InsertOne(item);
         }
 
-        public void UpdateItem(Item item, Guid id)
+        public Task UpdateItemAsync(Item item)
         {
-            throw new NotImplementedException();
+            var filter = filterBuilder.Eq(i => i.Id, item.Id);
+            itemsCollection.ReplaceOne(filter, item);
         }
 
-        public void RemoveItem(Guid id)
+        public Task RemoveItemAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var filter = filterBuilder.Eq(i => i.Id, id);
+            itemsCollection.DeleteOne(filter);
         }
     }
 }

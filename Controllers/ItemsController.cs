@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TutorialNET5WebAPI.Helpers;
 using TutorialNET5WebAPI.Models;
@@ -24,13 +25,13 @@ namespace TutorialNET5WebAPI.Controllers
         [HttpGet]
         public IEnumerable<ItemDto> GetItems()
         {
-            return repository.GetItems().Select(i => i.AsDto());
+            return repository.GetItemsAsync().Select(i => i.AsDto());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ItemDto> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItem(Guid id)
         {
-            var item = repository.GetItem(id);
+            var item = await repository.GetItemAsync(id);
 
             if (item is null)
                 return NotFound();
@@ -44,15 +45,15 @@ namespace TutorialNET5WebAPI.Controllers
         public ActionResult<ItemDto> PostItem([FromBody]CreateItemDto dto)
         {
             var item = dto.AsItem();
-            repository.AddItem(item);
+            repository.AddItemAsync(item);
             return CreatedAtAction(nameof(GetItem), new {id = item.Id}, item.AsDto());
             //1 par -> jaka funkcja dostane info o stworzonym elemencie, id elementu, wlasciwy obiekt do zwrocenia
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateItem([FromBody] UpdateItemDto dto, Guid id)
+        public async Task<ActionResult> UpdateItem([FromBody] UpdateItemDto dto, Guid id)
         {
-            var existingItem = repository.GetItem(id);
+            var existingItem = await repository.GetItemAsync(id);
 
             if (existingItem is null)
                 return NotFound();
@@ -63,7 +64,7 @@ namespace TutorialNET5WebAPI.Controllers
                 Price = dto.Price
             };
 
-            repository.UpdateItem(updatingItem, id);
+            repository.UpdateItemAsync(updatingItem);
 
             return NoContent();
         }
@@ -71,7 +72,7 @@ namespace TutorialNET5WebAPI.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteItem([FromQuery] Guid id)
         {
-            repository.RemoveItem(id);
+            repository.RemoveItemAsync(id);
             return Ok();
         }
     }
