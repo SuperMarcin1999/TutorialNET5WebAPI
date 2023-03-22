@@ -29,24 +29,24 @@ namespace TutorialNET5WebAPI.Repositories
 
         public async Task<IEnumerable<Item>> GetItemsAsync()
         {
-            //return await itemsCollection.FindAsync(new BsonDocument()).Result.ToList();
+            return await itemsCollection.FindAsync(filterBuilder.Empty).Result.ToListAsync();
         }
 
-        public Task AddItemAsync(Item item)
+        public async Task AddItemAsync(Item item)
         {
-            itemsCollection.InsertOne(item);
+            await itemsCollection.InsertOneAsync(item);
         }
 
-        public Task UpdateItemAsync(Item item)
+        public async Task UpdateItemAsync(Item item)
         {
             var filter = filterBuilder.Eq(i => i.Id, item.Id);
-            itemsCollection.ReplaceOne(filter, item);
+            await itemsCollection.ReplaceOneAsync(filter, item);
         }
 
-        public Task RemoveItemAsync(Guid id)
+        public async Task RemoveItemAsync(Guid id)
         {
             var filter = filterBuilder.Eq(i => i.Id, id);
-            itemsCollection.DeleteOne(filter);
+            await itemsCollection.DeleteOneAsync(filter);
         }
     }
 }

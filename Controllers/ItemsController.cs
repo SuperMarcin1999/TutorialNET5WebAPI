@@ -23,13 +23,13 @@ namespace TutorialNET5WebAPI.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ItemDto> GetItems()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            return repository.GetItemsAsync().Select(i => i.AsDto());
+            return (await repository.GetItemsAsync()).Select(i => i.AsDto());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItemDto>> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id)
         {
             var item = await repository.GetItemAsync(id);
 
@@ -42,16 +42,16 @@ namespace TutorialNET5WebAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ItemDto> PostItem([FromBody]CreateItemDto dto)
+        public async Task<ActionResult<ItemDto>> PostItemAsync([FromBody]CreateItemDto dto)
         {
             var item = dto.AsItem();
-            repository.AddItemAsync(item);
-            return CreatedAtAction(nameof(GetItem), new {id = item.Id}, item.AsDto());
+            await repository.AddItemAsync(item);
+            return CreatedAtAction(nameof(GetItemAsync), new {id = item.Id}, item.AsDto());
             //1 par -> jaka funkcja dostane info o stworzonym elemencie, id elementu, wlasciwy obiekt do zwrocenia
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateItem([FromBody] UpdateItemDto dto, Guid id)
+        public async Task<ActionResult> UpdateItemAsync([FromBody] UpdateItemDto dto, Guid id)
         {
             var existingItem = await repository.GetItemAsync(id);
 
@@ -64,15 +64,15 @@ namespace TutorialNET5WebAPI.Controllers
                 Price = dto.Price
             };
 
-            repository.UpdateItemAsync(updatingItem);
+            await repository.UpdateItemAsync(updatingItem);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem([FromQuery] Guid id)
+        public async Task<ActionResult> DeleteItemAsync(Guid id)
         {
-            repository.RemoveItemAsync(id);
+            await repository.RemoveItemAsync(id);
             return Ok();
         }
     }

@@ -44,7 +44,10 @@ namespace TutorialNET5WebAPI
 
             services.AddSingleton<IItemRepository, MongoDbItemsRepository>();
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TutorialNET5WebAPI", Version = "v1" });
